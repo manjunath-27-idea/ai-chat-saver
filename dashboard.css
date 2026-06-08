@@ -127,6 +127,29 @@ body {
   box-shadow: 0 0 0 3px var(--accent-light);
 }
 
+.search-bar-container {
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.main-search-input {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+.main-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light), var(--shadow);
+}
+
 .filter-select {
   padding: 10px 16px;
   border: 1px solid var(--border);

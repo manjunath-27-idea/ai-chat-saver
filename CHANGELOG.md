@@ -2,6 +2,16 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.3] - 2026-06-08
+
+### Added
+- Repositioned the search input bar to span the full width across the top of both panels (chat viewer and sidebar).
+- Relocated the platform filter dropdown select back next to the H1 logo title in the main header.
+- Relocated the "Export All" action button into a new "Backup & Export" section inside the Settings slide-out drawer.
+- Cleaned up the right sidebar toolbar to feature only the list of chats and settings menu.
+
+---
+
 ## [1.3.2] - 2026-06-08
 
 ### Changed
