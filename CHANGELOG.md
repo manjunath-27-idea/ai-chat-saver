@@ -2,6 +2,13 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.13] - 2026-06-08
+
+### Fixed
+- Fixed user bubble star button visibility bug on Claude: broadened selectors to query multiple turn wrappers (`.human-message`, `[data-testid="user-message"]`, `.human-turn`, `[data-testid="conversation-turn-user"]`).
+- Replaced child combinator CSS rules with descendant selectors in `content.css`.
+- Forced flex-direction column on the immediate parent container of the nested star button (`*:has(> .star-btn)`), guaranteeing clean layout alignment at the bottom-right (end) of the bubble without overlapping.
+
 ## [1.3.12] - 2026-06-08
 
 ### Fixed

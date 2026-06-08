@@ -426,7 +426,7 @@
       document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
       document.querySelectorAll('.ai-saver-star').forEach(el => el.remove());
 
-      const userMessages = document.querySelectorAll('div[data-testid="user-message"]');
+      const userMessages = document.querySelectorAll('.human-message, [data-testid="user-message"], .human-turn, [data-testid="conversation-turn-user"]');
       
       for (let index = 0; index < userMessages.length; index++) {
         const msg = userMessages[index];

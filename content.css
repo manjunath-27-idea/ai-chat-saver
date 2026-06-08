@@ -235,13 +235,25 @@
 }
 
 /* Claude User Message Bubble Turn flex alignment layout */
-div[data-testid="user-message"] {
+div[data-testid="user-message"],
+.human-message,
+.human-turn,
+[data-testid="conversation-turn-user"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Force flex-direction column on the immediate container of the star button to stack it below text */
+*:has(> .star-btn) {
   display: flex !important;
   flex-direction: column !important;
 }
 
 /* Claude Message-level Star Button (Icon-Only Style) */
-div[data-testid="user-message"] > .star-btn {
+div[data-testid="user-message"] .star-btn,
+.human-message .star-btn,
+.human-turn .star-btn,
+[data-testid="conversation-turn-user"] .star-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
