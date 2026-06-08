@@ -415,12 +415,13 @@
   }
 
   // Also add stars to individual messages
-  function injectMessageStars() {
+  async function injectMessageStars() {
     const config = getPlatformConfig();
     const messages = document.querySelectorAll(config.messages);
+    const platform = detectPlatform();
     
-    messages.forEach((msg, index) => {
-      if (msg.querySelector('.ai-saver-msg-star')) return;
+    for (let index = 0; index < messages.length; index++) {
+      const msg = messages[index];
       
       let injectTarget = msg;
       let isUser = false;
@@ -440,37 +441,106 @@
         }
       }
       
-      // If the target already has the star button, skip
-      if (injectTarget.querySelector('.ai-saver-msg-star')) return;
+      if (injectTarget.querySelector('.ai-saver-msg-star') || injectTarget.querySelector('.star-btn')) continue;
 
-      const starBtn = document.createElement('button');
-      starBtn.className = 'ai-saver-msg-star';
-      starBtn.innerHTML = '☆';
-      starBtn.title = 'Save this message';
+      if (platform === 'claude' && !isUser) {
+        // Only user messages get stars on Claude
+        continue;
+      }
       
-      starBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const textEl = msg.querySelector(config.messageText) || msg;
-        const messageData = {
-          url: window.location.href + '#msg-' + index,
-          title: document.title + ' - Message #' + (index + 1),
-          platform: detectPlatform(),
-          messages: [{
-            role: isUser ? 'user' : 'assistant',
-            text: textEl.innerText.trim(),
-            timestamp: Date.now()
-          }],
-          isSingleMessage: true
-        };
+      const msgUrl = window.location.href + '#msg-' + index;
+      const saved = await isConversationSaved(msgUrl);
+      
+      if (platform === 'claude') {
+        const starBtn = document.createElement('button');
+        starBtn.className = saved ? 'star-btn starred' : 'star-btn';
+        starBtn.innerHTML = `
+          <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>${saved ? 'Starred' : 'Star'}</span>
+        `;
+        starBtn.title = 'Save this message';
         
-        await saveConversation(messageData);
-        starBtn.textContent = '★';
-        starBtn.classList.add('saved');
-      });
-      
-      injectTarget.style.position = 'relative';
-      injectTarget.appendChild(starBtn);
-    });
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const textEl = msg.querySelector(config.messageText) || msg;
+          const isCurrentlyStarred = starBtn.classList.contains('starred');
+          
+          if (isCurrentlyStarred) {
+            const result = await chrome.storage.local.get(['savedChats']);
+            let savedChats = result.savedChats || [];
+            savedChats = savedChats.filter(c => c.url !== msgUrl);
+            await chrome.storage.local.set({ savedChats });
+            
+            starBtn.classList.remove('starred');
+            starBtn.querySelector('span').textContent = 'Star';
+          } else {
+            const messageData = {
+              url: msgUrl,
+              title: document.title + ' - Message #' + (index + 1),
+              platform: 'claude',
+              messages: [{
+                role: 'user',
+                text: textEl.innerText.trim(),
+                timestamp: Date.now()
+              }],
+              isSingleMessage: true
+            };
+            await saveConversation(messageData);
+            starBtn.classList.add('starred');
+            starBtn.querySelector('span').textContent = 'Starred';
+          }
+        });
+        
+        const copyBtn = injectTarget.querySelector('button');
+        const actionsRow = copyBtn ? copyBtn.parentElement : null;
+        if (actionsRow) {
+          actionsRow.appendChild(starBtn);
+        } else {
+          injectTarget.appendChild(starBtn);
+        }
+      } else {
+        const starBtn = document.createElement('button');
+        starBtn.className = saved ? 'ai-saver-msg-star saved' : 'ai-saver-msg-star';
+        starBtn.innerHTML = saved ? '★' : '☆';
+        starBtn.title = 'Save this message';
+        
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const textEl = msg.querySelector(config.messageText) || msg;
+          const isCurrentlySaved = starBtn.classList.contains('saved');
+          
+          if (isCurrentlySaved) {
+            const result = await chrome.storage.local.get(['savedChats']);
+            let savedChats = result.savedChats || [];
+            savedChats = savedChats.filter(c => c.url !== msgUrl);
+            await chrome.storage.local.set({ savedChats });
+            
+            starBtn.classList.remove('saved');
+            starBtn.textContent = '☆';
+          } else {
+            const messageData = {
+              url: msgUrl,
+              title: document.title + ' - Message #' + (index + 1),
+              platform: platform,
+              messages: [{
+                role: isUser ? 'user' : 'assistant',
+                text: textEl.innerText.trim(),
+                timestamp: Date.now()
+              }],
+              isSingleMessage: true
+            };
+            await saveConversation(messageData);
+            starBtn.textContent = '★';
+            starBtn.classList.add('saved');
+          }
+        });
+        
+        injectTarget.style.position = 'relative';
+        injectTarget.appendChild(starBtn);
+      }
+    }
   }
 
   let domObserver = null;

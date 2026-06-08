@@ -148,3 +148,88 @@
     border-color: rgba(255, 193, 7, 0.5);
   }
 }
+
+/* Claude Native Star Button Styles */
+.star-btn {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(0, 0, 0, 0.3);
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.5);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.star-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.star-btn.starred {
+  background: #FAEEDA !important;
+  border-color: #FAC775 !important;
+  color: #633806 !important;
+}
+
+.star-btn.starred:hover {
+  background: #F5E5C9 !important;
+}
+
+.star-btn.starred svg path {
+  fill: #EF9F27 !important;
+  stroke: #BA7517 !important;
+}
+
+/* Dark mode overrides for Claude .star-btn */
+.dark .star-btn,
+.dark-theme .star-btn,
+[data-theme="dark"] .star-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark .star-btn:hover,
+.dark-theme .star-btn:hover,
+[data-theme="dark"] .star-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dark .star-btn.starred,
+.dark-theme .star-btn.starred,
+[data-theme="dark"] .star-btn.starred {
+  background: #3c2f17 !important;
+  border-color: #785a25 !important;
+  color: #fbe6c4 !important;
+}
+
+.dark .star-btn.starred:hover,
+.dark-theme .star-btn.starred:hover,
+[data-theme="dark"] .star-btn.starred:hover {
+  background: #47371b !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .star-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .star-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .star-btn.starred {
+    background: #3c2f17 !important;
+    border-color: #785a25 !important;
+    color: #fbe6c4 !important;
+  }
+  .star-btn.starred:hover {
+    background: #47371b !important;
+  }
+}

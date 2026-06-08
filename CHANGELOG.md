@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.7] - 2026-06-08
+
+### Added
+- Implemented native-style inline star/starred button action on Claude's user prompt bubbles next to the native copy button.
+- Excluded assistant message turns on Claude from receiving message-level star buttons to match the requested user-only scope.
+- Programmed light and dark theme adaptive colors for the new Claude `.star-btn` inline action buttons.
+
+---
+
 ## [1.3.6] - 2026-06-08
 
 ### Fixed
