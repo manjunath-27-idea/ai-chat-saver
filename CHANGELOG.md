@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.1] - 2026-06-08
+
+### Added
+- Integrated the platform filter select dropdown directly inside the header beside the main title logo.
+- Moved the Settings action to the bottom of the left sidebar as a dedicated sidebar menu item.
+- Re-architected the Settings modal into a premium slide-out side drawer with smooth opacity and horizontal transform transitions.
+
+---
+
 ## [1.3.0] - 2026-06-08
 
 ### Added
