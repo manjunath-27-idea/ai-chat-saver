@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chat Saver - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#ffc107">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <h1>AI Chat Saver</h1>
+      </div>
+      <div class="stats">
+        <span id="totalChats">0 chats saved</span>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search saved chats..." class="search-input">
+        <select id="platformFilter" class="filter-select">
+          <option value="all">All Platforms</option>
+          <option value="chatgpt">ChatGPT</option>
+          <option value="claude">Claude</option>
+          <option value="gemini">Gemini</option>
+          <option value="perplexity">Perplexity</option>
+          <option value="poe">Poe</option>
+          <option value="copilot">Copilot</option>
+        </select>
+        <button id="exportAllBtn" class="btn btn-secondary">Export All</button>
+        <button id="settingsBtn" class="btn btn-secondary" title="Extension Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Settings
+        </button>
+      </div>
+
+      <div id="chatsList" class="chats-list">
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <p>No saved chats yet</p>
+          <span>Click the star icon on any AI chat to save it here</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="chatModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Chat Title</h2>
+        <div class="modal-actions">
+          <button id="modalExport" class="btn btn-secondary">Export</button>
+          <button id="modalDelete" class="btn btn-danger">Delete</button>
+          <button id="modalClose" class="btn btn-icon">✕</button>
+        </div>
+      </div>
+      <div class="modal-meta">
+        <span id="modalPlatform" class="platform-badge">Platform</span>
+        <span id="modalDate">Date</span>
+        <a id="modalLink" href="#" target="_blank" class="link">Open Original →</a>
+      </div>
+      <div id="modalMessages" class="modal-messages"></div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Extension Settings</h2>
+        <button id="settingsClose" class="btn btn-icon">✕</button>
+      </div>
+      <div class="settings-body" style="padding: 24px; overflow-y: auto; max-height: 70vh;">
+        <section class="settings-section">
+          <h3 style="margin-bottom: 8px;">Custom AI Chat Platforms</h3>
+          <p class="section-description" style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">
+            Add custom URLs (e.g. self-hosted LLM endpoints or local WebUIs) to enable chat saving on them.
+          </p>
+          
+          <form id="addPlatformForm" class="settings-form" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+              <label for="platformNameInput" style="font-size: 13px; font-weight: 600;">Platform Name</label>
+              <input type="text" id="platformNameInput" placeholder="e.g. Local Llama" class="search-input" style="width: 100%;" required>
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+              <label for="platformUrlInput" style="font-size: 13px; font-weight: 600;">Chat Interface URL</label>
+              <input type="url" id="platformUrlInput" placeholder="e.g. http://localhost:3000/chat" class="search-input" style="width: 100%;" required>
+            </div>
+            
+            <details class="advanced-selectors" style="cursor: pointer; font-size: 13px; margin-top: 4px;">
+              <summary style="font-weight: 600; color: var(--text-secondary);">Advanced DOM Selectors (Optional)</summary>
+              <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 12px; cursor: default;">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                  <label for="selectorMessages" style="font-weight: 500;">Messages Container Selector</label>
+                  <input type="text" id="selectorMessages" placeholder="e.g. article, .chat-message" class="search-input" style="width: 100%;">
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                  <label for="selectorMessageText" style="font-weight: 500;">Message Text Selector</label>
+                  <input type="text" id="selectorMessageText" placeholder="e.g. p, .content" class="search-input" style="width: 100%;">
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                  <label for="selectorUser" style="font-weight: 500;">User Prompt Selector</label>
+                  <input type="text" id="selectorUser" placeholder="e.g. .user-message" class="search-input" style="width: 100%;">
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 4px;">
+                  <label for="selectorAssistant" style="font-weight: 500;">Assistant Message Selector</label>
+                  <input type="text" id="selectorAssistant" placeholder="e.g. .assistant-message" class="search-input" style="width: 100%;">
+                </div>
+              </div>
+            </details>
+            
+            <button type="submit" class="btn btn-secondary" style="background: var(--accent-light); color: var(--text); border: 1px solid var(--accent); align-self: flex-start; margin-top: 8px;">
+              Add Custom Platform
+            </button>
+          </form>
+          
+          <div class="custom-platforms-list-container">
+            <h4 style="margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Registered Custom Platforms</h4>
+            <div id="customPlatformsList" class="custom-platforms-list" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

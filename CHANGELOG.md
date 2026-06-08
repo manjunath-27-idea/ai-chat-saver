@@ -1,0 +1,82 @@
+# Changelog
+
+All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
+
+## [1.2.1] - 2026-06-07
+
+### Fixed
+- Fixed text-overlapping glitch where the save-star buttons obscured message texts in Gemini and other platforms. Added a dynamic direct-parent CSS `:has()` padding-right rule (`padding-right: 44px !important`) to reserve clear right margin space for the absolute-positioned stars.
+- Refined message star button colors, shadows, and hover transitions (introducing glassmorphism semi-transparency and dark-theme class checks) to look completely native in dark mode layouts.
+
+---
+
+## [1.2.0] - 2026-06-07
+
+### Added
+- Added **36 native AI platforms** to the routing and matching system in [content.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/content.js).
+- Added corresponding permissions and match rules for all 36 domains in [manifest.json](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/manifest.json) to enable native injection out-of-the-box.
+- Populated all 36 AI chat platforms inside the dashboard filter dropdown in [dashboard.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.js).
+
+---
+
+## [1.1.0] - 2026-06-07
+
+### Added
+- Added a **Settings Modal** in [dashboard.html](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.html) and [dashboard.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.js) to allow users to register custom AI chat platforms.
+- Implemented **URL Dividing** (parsing) to dynamically extract hostnames, pathnames, and origin matches.
+- Integrated Chrome **optional host permissions** (`*://*/*` in [manifest.json](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/manifest.json)) so host permissions are requested dynamically when a user adds a new platform, keeping initial installation warning-free.
+- Implemented dynamic script registration in [background.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/background.js) utilizing Chrome's `scripting` API, which restores registered custom platforms' content scripts on browser startup.
+- Refactored routing detection in [content.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/content.js) into a data-driven structure (`AI_ROUTING_TABLE`) supporting dynamic expansion of platforms and path-specific chat matching.
+
+---
+
+## [1.0.4] - 2026-06-07
+
+### Added
+- Targeted specific user prompt wrappers (e.g. `.user-query-container` on Gemini, `[class*="MessageItem_user"]` on Manus) and assistant responses to inject the save-star buttons directly inside the message bubbles rather than the outer row container.
+- Configured CSS in [content.css](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/content.css) to set relative positioning for these nested wrappers, ensuring alignment of the absolute-positioned star.
+
+---
+
+## [1.0.3] - 2026-06-07
+
+### Removed
+- Removed the `chrome_url_overrides` field in [manifest.json](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/manifest.json) that overrode the Chrome New Tab page.
+
+### Added
+- Added a click action listener inside [background.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/background.js) that opens the dashboard ([dashboard.html](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.html)) in a new tab whenever the extension toolbar icon is clicked.
+
+---
+
+## [1.0.2] - 2026-06-07
+
+### Added
+- Re-added specific support for **Google Gemini** (`gemini.google.com`) inside:
+  - [manifest.json](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/manifest.json) (`host_permissions` & `content_scripts.matches`)
+  - [content.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/content.js) (selectors, platform detection, injection helper)
+  - [dashboard.html](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.html) (dropdown filter option)
+
+### Fixed
+- Avoided using the broad wildcard `*://*.google.com/*` host permission to prevent redirect glitches for Google links in the overridden New Tab page.
+
+---
+
+## [1.0.1] - 2026-06-07
+
+### Removed
+- Removed all Google-related chat connections, including Gemini and Bard, from:
+  - [manifest.json](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/manifest.json) (host permissions and matches)
+  - [content.js](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/content.js) (platform selectors, detectPlatform, injection configs)
+  - [dashboard.html](file:///c:/Users/91849/AntiGravityProjects/ai-chat-saver/dashboard.html) (platform filter option)
+
+---
+
+## [1.0.0] - 2026-06-07
+
+### Added
+- Initial release of the **AI Chat Saver** Chrome Extension.
+- Multi-platform scraping support: ChatGPT, Claude, Gemini, Perplexity, Poe, Copilot, Manus, and generic websites.
+- Main header star injection for saving full chats.
+- Individual message hover star injection for single message capture.
+- Local storage database for saved chats.
+- New Tab page override with Search, Filtering, and JSON exports.

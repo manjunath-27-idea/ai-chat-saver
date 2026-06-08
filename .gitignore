@@ -1,0 +1,9 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Extension local data / logs
+*.log
+.gemini/
+brain/
+scratch/
