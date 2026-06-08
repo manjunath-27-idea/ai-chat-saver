@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.8] - 2026-06-08
+
+### Fixed
+- Refined message-level star button placement on Claude user turns by targeting only `div[data-testid="user-message"]` and `.human-turn` containers.
+- Realigned injection logic to place the `.star-btn` next to the copy/actions container, or fall back to immediately after the message text block.
+- Corrected potential duplicate star buttons by using single element querying per user message turn.
+
+---
+
 ## [1.3.7] - 2026-06-08
 
 ### Added
