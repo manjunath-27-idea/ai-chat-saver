@@ -2,6 +2,19 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.0] - 2026-06-08
+
+### Added
+- Replaced the popup modal chat viewer in the dashboard with a premium static, two-column split-screen layout.
+- Added sidebar navigation containing search, platform filters, custom platform config triggers, and saved chat lists.
+- Implemented responsive grid/flex layout with scroll locks to prevent double scrollbars.
+- Added active card highlighting and default selection of the first card on load or when filters are changed.
+
+### Fixed
+- Fixed extension update listener in `background.js` to prevent wiping user data (chats and custom platforms) on updates.
+
+---
+
 ## [1.2.1] - 2026-06-07
 
 ### Fixed

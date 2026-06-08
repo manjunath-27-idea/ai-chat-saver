@@ -21,57 +21,68 @@
     </header>
 
     <main class="main">
-      <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="Search saved chats..." class="search-input">
-        <select id="platformFilter" class="filter-select">
-          <option value="all">All Platforms</option>
-          <option value="chatgpt">ChatGPT</option>
-          <option value="claude">Claude</option>
-          <option value="gemini">Gemini</option>
-          <option value="perplexity">Perplexity</option>
-          <option value="poe">Poe</option>
-          <option value="copilot">Copilot</option>
-        </select>
-        <button id="exportAllBtn" class="btn btn-secondary">Export All</button>
-        <button id="settingsBtn" class="btn btn-secondary" title="Extension Settings">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          Settings
-        </button>
-      </div>
+      <div class="dashboard-layout">
+        <!-- Left Sidebar -->
+        <div class="chats-sidebar">
+          <div class="toolbar">
+            <input type="text" id="searchInput" placeholder="Search saved chats..." class="search-input">
+            <select id="platformFilter" class="filter-select">
+              <option value="all">All Platforms</option>
+              <option value="chatgpt">ChatGPT</option>
+              <option value="claude">Claude</option>
+              <option value="gemini">Gemini</option>
+              <option value="perplexity">Perplexity</option>
+              <option value="poe">Poe</option>
+              <option value="copilot">Copilot</option>
+            </select>
+            <button id="exportAllBtn" class="btn btn-secondary">Export All</button>
+            <button id="settingsBtn" class="btn btn-secondary" title="Extension Settings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              Settings
+            </button>
+          </div>
 
-      <div id="chatsList" class="chats-list">
-        <div class="empty-state">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <p>No saved chats yet</p>
-          <span>Click the star icon on any AI chat to save it here</span>
+          <div id="chatsList" class="chats-list">
+            <div class="empty-state">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <p>No saved chats yet</p>
+              <span>Click the star icon on any AI chat to save it here</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Chat Viewer Pane -->
+        <div id="chatViewer" class="chat-viewer">
+          <div class="viewer-placeholder">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" style="margin-bottom: 16px;">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <h3>No Chat Selected</h3>
+            <p>Select a chat from the sidebar to view its conversation details</p>
+          </div>
+          <div class="viewer-content" style="display: none;">
+            <div class="viewer-header">
+              <h2 id="viewerTitle">Chat Title</h2>
+              <div class="viewer-actions">
+                <button id="viewerExport" class="btn btn-secondary">Export</button>
+                <button id="viewerDelete" class="btn btn-danger">Delete</button>
+              </div>
+            </div>
+            <div class="viewer-meta">
+              <span id="viewerPlatform" class="platform-badge">Platform</span>
+              <span id="viewerDate">Date</span>
+              <a id="viewerLink" href="#" target="_blank" class="link">Open Original →</a>
+            </div>
+            <div id="viewerMessages" class="viewer-messages"></div>
+          </div>
         </div>
       </div>
     </main>
-  </div>
-
-  <div id="chatModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalTitle">Chat Title</h2>
-        <div class="modal-actions">
-          <button id="modalExport" class="btn btn-secondary">Export</button>
-          <button id="modalDelete" class="btn btn-danger">Delete</button>
-          <button id="modalClose" class="btn btn-icon">✕</button>
-        </div>
-      </div>
-      <div class="modal-meta">
-        <span id="modalPlatform" class="platform-badge">Platform</span>
-        <span id="modalDate">Date</span>
-        <a id="modalLink" href="#" target="_blank" class="link">Open Original →</a>
-      </div>
-      <div id="modalMessages" class="modal-messages"></div>
-    </div>
-  </div>
 
   <div id="settingsModal" class="modal">
     <div class="modal-content">

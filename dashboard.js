@@ -1,5 +1,5 @@
 let currentChats = [];
-let currentModalChat = null;
+let selectedChatId = null;
 
 async function loadChats() {
   const result = await chrome.storage.local.get(['savedChats']);
@@ -40,6 +40,7 @@ function renderChats() {
         <span>${searchTerm || platformFilter !== 'all' ? 'Try different filters' : 'Click the star icon on any AI chat to save it here'}</span>
       </div>
     `;
+    selectChat(null);
     return;
   }
   
@@ -47,9 +48,10 @@ function renderChats() {
     const preview = chat.messages[0]?.text?.substring(0, 120) + '...' || 'No preview';
     const date = new Date(chat.createdAt).toLocaleDateString();
     const msgCount = chat.messages?.length || 0;
+    const isActive = chat.id === selectedChatId ? ' active' : '';
     
     return `
-      <div class="chat-card" data-id="${chat.id}">
+      <div class="chat-card${isActive}" data-id="${chat.id}">
         <div class="chat-card-header">
           <div>
             <div class="chat-title">${escapeHtml(chat.title)}</div>
@@ -69,9 +71,17 @@ function renderChats() {
   document.querySelectorAll('.chat-card').forEach(card => {
     card.addEventListener('click', () => {
       const chat = currentChats.find(c => c.id === card.dataset.id);
-      if (chat) openModal(chat);
+      if (chat) selectChat(chat);
     });
   });
+
+  // Default selection logic: maintain current selection if valid,
+  // otherwise default to first sorted card in list.
+  let activeChat = filtered.find(c => c.id === selectedChatId);
+  if (!activeChat && filtered.length > 0) {
+    activeChat = filtered[0];
+  }
+  selectChat(activeChat);
 }
 
 function escapeHtml(text) {
@@ -80,14 +90,30 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function openModal(chat) {
-  currentModalChat = chat;
-  document.getElementById('modalTitle').textContent = chat.title;
-  document.getElementById('modalPlatform').textContent = chat.platform;
-  document.getElementById('modalDate').textContent = new Date(chat.createdAt).toLocaleString();
-  document.getElementById('modalLink').href = chat.url;
+function selectChat(chat) {
+  if (!chat) {
+    selectedChatId = null;
+    document.querySelector('.viewer-placeholder').style.display = 'flex';
+    document.querySelector('.viewer-content').style.display = 'none';
+    return;
+  }
   
-  const messagesContainer = document.getElementById('modalMessages');
+  selectedChatId = chat.id;
+  
+  // Highlight active chat-card
+  document.querySelectorAll('.chat-card').forEach(card => {
+    card.classList.toggle('active', card.dataset.id === chat.id);
+  });
+  
+  document.querySelector('.viewer-placeholder').style.display = 'none';
+  document.querySelector('.viewer-content').style.display = 'flex';
+  
+  document.getElementById('viewerTitle').textContent = chat.title;
+  document.getElementById('viewerPlatform').textContent = chat.platform;
+  document.getElementById('viewerDate').textContent = new Date(chat.createdAt).toLocaleString();
+  document.getElementById('viewerLink').href = chat.url;
+  
+  const messagesContainer = document.getElementById('viewerMessages');
   messagesContainer.innerHTML = chat.messages.map(msg => `
     <div class="message ${msg.role}">
       <div class="message-role">${msg.role}</div>
@@ -95,39 +121,31 @@ function openModal(chat) {
     </div>
   `).join('');
   
-  document.getElementById('chatModal').classList.add('active');
-}
-
-function closeModal() {
-  document.getElementById('chatModal').classList.remove('active');
-  currentModalChat = null;
+  messagesContainer.scrollTop = 0;
 }
 
 // Event listeners
 document.getElementById('searchInput').addEventListener('input', renderChats);
 document.getElementById('platformFilter').addEventListener('change', renderChats);
-document.getElementById('modalClose').addEventListener('click', closeModal);
-document.getElementById('chatModal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeModal();
-});
 
-document.getElementById('modalDelete').addEventListener('click', async () => {
-  if (!currentModalChat) return;
+document.getElementById('viewerDelete').addEventListener('click', async () => {
+  const chat = currentChats.find(c => c.id === selectedChatId);
+  if (!chat) return;
   if (!confirm('Delete this saved chat?')) return;
   
-  currentChats = currentChats.filter(c => c.id !== currentModalChat.id);
+  currentChats = currentChats.filter(c => c.id !== chat.id);
   await chrome.storage.local.set({ savedChats: currentChats });
-  closeModal();
-  renderChats();
+  // local storage onChanged callback handles auto-selection of next card
 });
 
-document.getElementById('modalExport').addEventListener('click', () => {
-  if (!currentModalChat) return;
-  const blob = new Blob([JSON.stringify(currentModalChat, null, 2)], { type: 'application/json' });
+document.getElementById('viewerExport').addEventListener('click', () => {
+  const chat = currentChats.find(c => c.id === selectedChatId);
+  if (!chat) return;
+  const blob = new Blob([JSON.stringify(chat, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `chat-${currentModalChat.platform}-${Date.now()}.json`;
+  a.download = `chat-${chat.platform}-${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
 });
@@ -146,7 +164,6 @@ document.getElementById('exportAllBtn').addEventListener('click', () => {
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    closeModal();
     closeSettingsModal();
   }
 });

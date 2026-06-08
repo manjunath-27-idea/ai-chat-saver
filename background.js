@@ -1,5 +1,15 @@
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ savedChats: [], customPlatforms: [] });
+chrome.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === 'install') {
+    await chrome.storage.local.set({ savedChats: [], customPlatforms: [] });
+  } else {
+    const result = await chrome.storage.local.get(['savedChats', 'customPlatforms']);
+    const updates = {};
+    if (result.savedChats === undefined) updates.savedChats = [];
+    if (result.customPlatforms === undefined) updates.customPlatforms = [];
+    if (Object.keys(updates).length > 0) {
+      await chrome.storage.local.set(updates);
+    }
+  }
 });
 
 // Handle keyboard shortcut (optional)
