@@ -2,6 +2,13 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.15] - 2026-06-09
+
+### Fixed
+- Rewrote Claude star injection to correctly find the **sibling** actions row (where Copy/Edit live) — not inside the message bubble.
+- Added 3-strategy fallback chain: walk `nextElementSibling` for a div with buttons → scan parent children → aria-label Copy/Edit button lookup.
+- Duplicate guard now checks `parent.querySelector('[data-star-btn]')` covering stars in sibling rows.
+
 ## [1.3.14] - 2026-06-09
 
 ### Fixed
