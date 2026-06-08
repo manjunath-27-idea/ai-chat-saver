@@ -2,6 +2,16 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.12] - 2026-06-08
+
+### Fixed
+- Relocated message-level star buttons inside Claude user bubbles: injected immediately after the message text block.
+- Removed text labels ("Star"/"Starred") from the button, making it a clean icon-only button style.
+- Set the user bubble wrapper to force flex-direction column, positioning the icon-only star button in the bottom-right (end) corner of the bubble Turn.
+- Purged any generic message stars and body-owned overlay stars from the page.
+
+---
+
 ## [1.3.11] - 2026-06-08
 
 ### Added

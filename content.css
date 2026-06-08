@@ -233,3 +233,27 @@
     background: #47371b !important;
   }
 }
+
+/* Claude User Message Bubble Turn flex alignment layout */
+div[data-testid="user-message"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Claude Message-level Star Button (Icon-Only Style) */
+div[data-testid="user-message"] > .star-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: flex-end !important;
+  margin-left: auto !important;
+  margin-right: 4px !important;
+  margin-top: 8px !important;
+  margin-bottom: 4px !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  box-sizing: border-box !important;
+}
