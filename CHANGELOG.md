@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.11] - 2026-06-08
+
+### Added
+- Implemented absolute-positioned overlay star buttons on Claude that float 8px to the left of the user message bubble, owned by `document.body` outside React's control.
+- Programmed position recalculations on window scroll and resize, as well as bubble hover.
+- Programmed automatic cleanup of old star buttons on body when their corresponding message bubbles are removed (e.g. on chat switches).
+
+---
+
 ## [1.3.10] - 2026-06-08
 
 ### Fixed

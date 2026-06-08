@@ -417,6 +417,106 @@
     updateStarButtons();
   }
 
+  function attachStar(bubbleEl, index) {
+    if (bubbleEl.dataset.starAttached) return;
+    bubbleEl.dataset.starAttached = 'true';
+    
+    if (!bubbleEl.id) {
+      bubbleEl.id = 'claude-user-bubble-' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    const msgUrl = window.location.href + '#msg-' + index;
+    
+    const starBtn = document.createElement('button');
+    starBtn.className = 'star-btn ai-saver-star';
+    starBtn.setAttribute('data-star-btn', 'true');
+    starBtn.dataset.associatedBubbleId = bubbleEl.id;
+    starBtn.style.opacity = '0';
+    starBtn.style.position = 'fixed';
+    starBtn.style.zIndex = '9999';
+    starBtn.style.transition = 'opacity 0.15s';
+    
+    starBtn.innerHTML = `
+      <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <span>Star</span>
+    `;
+    
+    // Position it relative to the bubble
+    function reposition() {
+      const rect = bubbleEl.getBoundingClientRect();
+      starBtn.style.top = `${rect.top + rect.height / 2 - 14}px`;
+      starBtn.style.right = `${window.innerWidth - rect.right + rect.width + 8}px`;
+    }
+    
+    reposition();
+    document.body.appendChild(starBtn);
+    
+    // Asynchronously check saved state and update
+    isConversationSaved(msgUrl).then(saved => {
+      starBtn.className = saved ? 'star-btn ai-saver-star starred' : 'star-btn ai-saver-star';
+      starBtn.querySelector('span').textContent = saved ? 'Starred' : 'Star';
+    });
+    
+    // Click handler
+    starBtn.title = 'Save this message';
+    starBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      const isCurrentlyStarred = starBtn.classList.contains('starred');
+      if (isCurrentlyStarred) {
+        const result = await chrome.storage.local.get(['savedChats']);
+        let savedChats = result.savedChats || [];
+        savedChats = savedChats.filter(c => c.url !== msgUrl);
+        await chrome.storage.local.set({ savedChats });
+        
+        starBtn.classList.remove('starred');
+        starBtn.querySelector('span').textContent = 'Star';
+        updateStarButtons();
+      } else {
+        const textBlock = bubbleEl.querySelector('.font-user-message, .prose, [class*="message-content"], [class*="font-user-message"]') || bubbleEl;
+        const messageData = {
+          url: msgUrl,
+          title: document.title + ' - Message #' + (index + 1),
+          platform: 'claude',
+          messages: [{
+            role: 'user',
+            text: textBlock.innerText.trim(),
+            timestamp: Date.now()
+          }],
+          isSingleMessage: true
+        };
+        await saveConversation(messageData);
+        starBtn.classList.add('starred');
+        starBtn.querySelector('span').textContent = 'Starred';
+      }
+    });
+    
+    // Show on bubble hover
+    bubbleEl.addEventListener('mouseenter', () => {
+      reposition(); // recalc in case scroll/resize moved it
+      starBtn.style.opacity = '1';
+    });
+    
+    bubbleEl.addEventListener('mouseleave', (e) => {
+      if (!starBtn.contains(e.relatedTarget)) {
+        starBtn.style.opacity = '0';
+      }
+    });
+    
+    starBtn.addEventListener('mouseleave', (e) => {
+      if (!bubbleEl.contains(e.relatedTarget)) {
+        starBtn.style.opacity = '0';
+      }
+    });
+    
+    // On scroll/resize, reposition
+    window.addEventListener('scroll', reposition, { passive: true });
+    window.addEventListener('resize', reposition, { passive: true });
+  }
+
   // Also add stars to individual messages
   async function injectMessageStars() {
     const platform = detectPlatform();
@@ -424,9 +524,13 @@
     if (platform === 'claude') {
       // Purge generic stars and orphans that shouldn't be on Claude
       document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
-      document.querySelectorAll('.star-btn').forEach(btn => {
-        if (btn.parentElement && !btn.parentElement.classList.contains('flex') && !btn.parentElement.classList.contains('gap-1') && !btn.parentElement.matches('[class*="flex"]')) {
-          btn.remove();
+      
+      // Clean up any star buttons whose associated bubbles are no longer in the DOM
+      document.querySelectorAll('.ai-saver-star').forEach(star => {
+        const bubbleId = star.dataset.associatedBubbleId;
+        const bubble = document.getElementById(bubbleId);
+        if (!bubble || !document.body.contains(bubble)) {
+          star.remove();
         }
       });
 
@@ -434,65 +538,7 @@
       
       for (let index = 0; index < userMessages.length; index++) {
         const msg = userMessages[index];
-        const msgUrl = window.location.href + '#msg-' + index;
-        
-        const actionRow = msg.nextElementSibling;
-        if (!actionRow || actionRow.querySelector('[data-star-btn]')) continue;
-        
-        // Find text block for data extraction
-        const textBlock = msg.querySelector('.font-user-message, .prose, [class*="message-content"], [class*="font-user-message"]') || msg;
-        
-        const starBtn = document.createElement('button');
-        starBtn.className = 'star-btn';
-        starBtn.setAttribute('data-star-btn', 'true');
-        starBtn.innerHTML = `
-          <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <span>Star</span>
-        `;
-        
-        // Position synchronously to avoid observer race conditions
-        actionRow.appendChild(starBtn);
-        
-        // Asynchronously check saved state and update
-        isConversationSaved(msgUrl).then(saved => {
-          starBtn.className = saved ? 'star-btn starred' : 'star-btn';
-          starBtn.querySelector('span').textContent = saved ? 'Starred' : 'Star';
-        });
-        
-        starBtn.title = 'Save this message';
-        starBtn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          
-          const isCurrentlyStarred = starBtn.classList.contains('starred');
-          if (isCurrentlyStarred) {
-            const result = await chrome.storage.local.get(['savedChats']);
-            let savedChats = result.savedChats || [];
-            savedChats = savedChats.filter(c => c.url !== msgUrl);
-            await chrome.storage.local.set({ savedChats });
-            
-            starBtn.classList.remove('starred');
-            starBtn.querySelector('span').textContent = 'Star';
-            updateStarButtons();
-          } else {
-            const messageData = {
-              url: msgUrl,
-              title: document.title + ' - Message #' + (index + 1),
-              platform: 'claude',
-              messages: [{
-                role: 'user',
-                text: textBlock.innerText.trim(),
-                timestamp: Date.now()
-              }],
-              isSingleMessage: true
-            };
-            await saveConversation(messageData);
-            starBtn.classList.add('starred');
-            starBtn.querySelector('span').textContent = 'Starred';
-          }
-        });
+        attachStar(msg, index);
       }
     } else {
       const config = getPlatformConfig();
