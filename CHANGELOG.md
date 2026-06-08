@@ -2,6 +2,16 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.9] - 2026-06-08
+
+### Fixed
+- Fixed MutationObserver asynchronous race condition that caused multiple star buttons to render (three stacked boxes) by injecting the `.star-btn` element synchronously.
+- Changed default placement: Instead of appending after the text inside the user message bubble, position the `.star-btn` immediately before the user message bubble container (`msg.before(starBtn)`), and align it to the right.
+- Audited and purged legacy generic `.ai-saver-msg-star` elements from Claude pages.
+- Restricted the Claude header target selector in `injectStarButtons()` to strictly the single main top navigation header element, removing duplicate floating stars from bottom-left or right edge areas.
+
+---
+
 ## [1.3.8] - 2026-06-08
 
 ### Fixed

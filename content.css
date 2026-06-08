@@ -233,3 +233,12 @@
     background: #47371b !important;
   }
 }
+
+/* Sibling styling when the star button is placed before/outside the bubble */
+.star-btn:not(div[data-testid="user-message"] *):not(.human-turn *) {
+  align-self: flex-end !important;
+  margin-left: auto !important;
+  margin-right: 16px !important;
+  margin-top: 8px !important;
+  margin-bottom: 4px !important;
+}

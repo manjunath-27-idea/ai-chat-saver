@@ -368,10 +368,8 @@
         return headers.length > 0 ? headers : [document.querySelector('main')];
       },
       claude: () => {
-        const headers = document.querySelectorAll('.sticky-header, header, [class*="header"], [class*="chat-header"]');
-        return Array.from(headers).filter(el => 
-          !el.closest('nav, [role="navigation"], .sidebar, [class*="sidebar"], [class*="profile"], [class*="Menu"]')
-        );
+        const header = document.querySelector('header') || document.querySelector('[data-testid="chat-header"]');
+        return header ? [header] : [];
       },
       gemini: () => {
         return document.querySelectorAll('.conversation-title, header');
@@ -419,6 +417,9 @@
     const platform = detectPlatform();
     
     if (platform === 'claude') {
+      // Purge generic stars that shouldn't be on Claude
+      document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
+
       const userMessages = document.querySelectorAll('div[data-testid="user-message"], .human-turn');
       
       for (let index = 0; index < userMessages.length; index++) {
@@ -436,7 +437,10 @@
           !btn.classList.contains('ai-saver-msg-star')
         );
         
-        let starBtn = msg.querySelector('.star-btn');
+        // Check if starBtn is in msg or immediately before msg
+        let starBtn = msg.querySelector('.star-btn') || 
+                      (msg.previousElementSibling && msg.previousElementSibling.classList.contains('star-btn') ? msg.previousElementSibling : null);
+                      
         if (!starBtn) {
           starBtn = document.createElement('button');
           starBtn.className = 'star-btn';
@@ -446,12 +450,20 @@
             </svg>
             <span>Star</span>
           `;
+          
+          // Position synchronously to avoid observer race conditions
+          if (copyBtn && copyBtn.parentElement) {
+            copyBtn.parentElement.appendChild(starBtn);
+          } else {
+            msg.before(starBtn);
+          }
         }
         
-        // Check saved state
-        const saved = await isConversationSaved(msgUrl);
-        starBtn.className = saved ? 'star-btn starred' : 'star-btn';
-        starBtn.querySelector('span').textContent = saved ? 'Starred' : 'Star';
+        // Asynchronously check saved state and update
+        isConversationSaved(msgUrl).then(saved => {
+          starBtn.className = saved ? 'star-btn starred' : 'star-btn';
+          starBtn.querySelector('span').textContent = saved ? 'Starred' : 'Star';
+        });
         
         if (!starBtn.dataset.listenerAttached) {
           starBtn.dataset.listenerAttached = 'true';
@@ -489,15 +501,15 @@
           });
         }
         
-        // Position button: Inject after the message text block (or next to copy button if actions row is present)
+        // Update position if needed (synchronously)
         if (copyBtn && copyBtn.parentElement) {
           const actionsRow = copyBtn.parentElement;
           if (starBtn.parentElement !== actionsRow) {
             actionsRow.appendChild(starBtn);
           }
         } else {
-          if (starBtn.previousElementSibling !== textBlock) {
-            textBlock.after(starBtn);
+          if (starBtn.nextElementSibling !== msg) {
+            msg.before(starBtn);
           }
         }
       }
