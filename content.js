@@ -359,6 +359,11 @@
     // Remove existing buttons
     document.querySelectorAll('.ai-saver-container').forEach(el => el.remove());
 
+    const platform = detectPlatform();
+    if (platform === 'claude') {
+      return;
+    }
+
     const config = getPlatformConfig();
     
     // Platform-specific injection points
@@ -417,47 +422,38 @@
     const platform = detectPlatform();
     
     if (platform === 'claude') {
-      // Purge generic stars that shouldn't be on Claude
+      // Purge generic stars and orphans that shouldn't be on Claude
       document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        if (btn.parentElement && !btn.parentElement.classList.contains('flex') && !btn.parentElement.classList.contains('gap-1') && !btn.parentElement.matches('[class*="flex"]')) {
+          btn.remove();
+        }
+      });
 
-      const userMessages = document.querySelectorAll('div[data-testid="user-message"], .human-turn');
+      const userMessages = document.querySelectorAll('div[data-testid="user-message"]');
       
       for (let index = 0; index < userMessages.length; index++) {
         const msg = userMessages[index];
         const msgUrl = window.location.href + '#msg-' + index;
         
-        // Find text block
-        const textBlock = msg.querySelector('.font-user-message, .prose, [class*="message-content"], [class*="font-user-message"]') || msg.firstElementChild;
-        if (!textBlock) continue;
+        const actionRow = msg.nextElementSibling;
+        if (!actionRow || actionRow.querySelector('[data-star-btn]')) continue;
         
-        // Find copy button (a button that is not our star button or another injected button)
-        const copyBtn = Array.from(msg.querySelectorAll('button')).find(btn => 
-          !btn.classList.contains('star-btn') && 
-          !btn.classList.contains('ai-saver-star-btn') && 
-          !btn.classList.contains('ai-saver-msg-star')
-        );
+        // Find text block for data extraction
+        const textBlock = msg.querySelector('.font-user-message, .prose, [class*="message-content"], [class*="font-user-message"]') || msg;
         
-        // Check if starBtn is in msg or immediately before msg
-        let starBtn = msg.querySelector('.star-btn') || 
-                      (msg.previousElementSibling && msg.previousElementSibling.classList.contains('star-btn') ? msg.previousElementSibling : null);
-                      
-        if (!starBtn) {
-          starBtn = document.createElement('button');
-          starBtn.className = 'star-btn';
-          starBtn.innerHTML = `
-            <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-            <span>Star</span>
-          `;
-          
-          // Position synchronously to avoid observer race conditions
-          if (copyBtn && copyBtn.parentElement) {
-            copyBtn.parentElement.appendChild(starBtn);
-          } else {
-            msg.before(starBtn);
-          }
-        }
+        const starBtn = document.createElement('button');
+        starBtn.className = 'star-btn';
+        starBtn.setAttribute('data-star-btn', 'true');
+        starBtn.innerHTML = `
+          <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Star</span>
+        `;
+        
+        // Position synchronously to avoid observer race conditions
+        actionRow.appendChild(starBtn);
         
         // Asynchronously check saved state and update
         isConversationSaved(msgUrl).then(saved => {
@@ -465,53 +461,38 @@
           starBtn.querySelector('span').textContent = saved ? 'Starred' : 'Star';
         });
         
-        if (!starBtn.dataset.listenerAttached) {
-          starBtn.dataset.listenerAttached = 'true';
-          starBtn.title = 'Save this message';
-          starBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            e.preventDefault();
+        starBtn.title = 'Save this message';
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          
+          const isCurrentlyStarred = starBtn.classList.contains('starred');
+          if (isCurrentlyStarred) {
+            const result = await chrome.storage.local.get(['savedChats']);
+            let savedChats = result.savedChats || [];
+            savedChats = savedChats.filter(c => c.url !== msgUrl);
+            await chrome.storage.local.set({ savedChats });
             
-            const isCurrentlyStarred = starBtn.classList.contains('starred');
-            if (isCurrentlyStarred) {
-              const result = await chrome.storage.local.get(['savedChats']);
-              let savedChats = result.savedChats || [];
-              savedChats = savedChats.filter(c => c.url !== msgUrl);
-              await chrome.storage.local.set({ savedChats });
-              
-              starBtn.classList.remove('starred');
-              starBtn.querySelector('span').textContent = 'Star';
-              updateStarButtons();
-            } else {
-              const messageData = {
-                url: msgUrl,
-                title: document.title + ' - Message #' + (index + 1),
-                platform: 'claude',
-                messages: [{
-                  role: 'user',
-                  text: textBlock.innerText.trim(),
-                  timestamp: Date.now()
-                }],
-                isSingleMessage: true
-              };
-              await saveConversation(messageData);
-              starBtn.classList.add('starred');
-              starBtn.querySelector('span').textContent = 'Starred';
-            }
-          });
-        }
-        
-        // Update position if needed (synchronously)
-        if (copyBtn && copyBtn.parentElement) {
-          const actionsRow = copyBtn.parentElement;
-          if (starBtn.parentElement !== actionsRow) {
-            actionsRow.appendChild(starBtn);
+            starBtn.classList.remove('starred');
+            starBtn.querySelector('span').textContent = 'Star';
+            updateStarButtons();
+          } else {
+            const messageData = {
+              url: msgUrl,
+              title: document.title + ' - Message #' + (index + 1),
+              platform: 'claude',
+              messages: [{
+                role: 'user',
+                text: textBlock.innerText.trim(),
+                timestamp: Date.now()
+              }],
+              isSingleMessage: true
+            };
+            await saveConversation(messageData);
+            starBtn.classList.add('starred');
+            starBtn.querySelector('span').textContent = 'Starred';
           }
-        } else {
-          if (starBtn.nextElementSibling !== msg) {
-            msg.before(starBtn);
-          }
-        }
+        });
       }
     } else {
       const config = getPlatformConfig();

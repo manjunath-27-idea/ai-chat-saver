@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.10] - 2026-06-08
+
+### Fixed
+- Disabled the global/header star button on Claude completely, removing the star next to the top-right "Share" button.
+- Updated message-level star buttons on Claude to inject strictly into the sibling actions row (`msg.nextElementSibling` / `.flex.gap-1`) immediately following the `div[data-testid="user-message"]` container.
+- Cleaned up custom sibling `.star-btn` styles from `content.css` and purged any orphan/legacy buttons from the page.
+
+---
+
 ## [1.3.9] - 2026-06-08
 
 ### Fixed
