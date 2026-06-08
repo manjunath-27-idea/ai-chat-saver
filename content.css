@@ -149,181 +149,96 @@
   }
 }
 
-/* Claude Native Star Button Styles */
-.star-btn {
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 0.5px solid rgba(0, 0, 0, 0.3);
-  background: transparent;
-  font-size: 13px;
-  cursor: pointer;
-  color: rgba(0, 0, 0, 0.5);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 8px;
-  transition: all 0.2s ease;
-  vertical-align: middle;
+/* ═══════════════════════════════════════════════════════════════
+   Claude — Star Button
+   Injected as a direct child of [data-testid="user-message"].
+   Absolutely positioned in the bottom-right corner, always visible.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Make the bubble the positioning context */
+[data-testid="user-message"] {
+  position: relative !important;
+  overflow: visible !important;
 }
 
-.star-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.star-btn.starred {
-  background: #FAEEDA !important;
-  border-color: #FAC775 !important;
-  color: #633806 !important;
-}
-
-.star-btn.starred:hover {
-  background: #F5E5C9 !important;
-}
-
-.star-btn.starred svg path {
-  fill: #EF9F27 !important;
-  stroke: #BA7517 !important;
-}
-
-/* Dark mode overrides for Claude .star-btn */
-.dark .star-btn,
-.dark-theme .star-btn,
-[data-theme="dark"] .star-btn {
-  border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.dark .star-btn:hover,
-.dark-theme .star-btn:hover,
-[data-theme="dark"] .star-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.dark .star-btn.starred,
-.dark-theme .star-btn.starred,
-[data-theme="dark"] .star-btn.starred {
-  background: #3c2f17 !important;
-  border-color: #785a25 !important;
-  color: #fbe6c4 !important;
-}
-
-.dark .star-btn.starred:hover,
-.dark-theme .star-btn.starred:hover,
-[data-theme="dark"] .star-btn.starred:hover {
-  background: #47371b !important;
-}
-
-@media (prefers-color-scheme: dark) {
-  .star-btn {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.6);
-  }
-  .star-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .star-btn.starred {
-    background: #3c2f17 !important;
-    border-color: #785a25 !important;
-    color: #fbe6c4 !important;
-  }
-  .star-btn.starred:hover {
-    background: #47371b !important;
-  }
-}
-
-/* Claude: ensure the actions row that holds our star button lays out inline */
-div[data-testid="user-message"] > div:has(> .star-btn),
-.human-message > div:has(> .star-btn),
-.human-turn > div:has(> .star-btn) {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  flex-wrap: wrap !important;
-  gap: 4px !important;
-}
-
-/* Claude Message-level Star Button — pill style matching native Copy button */
-div[data-testid="user-message"] .star-btn,
-.human-message .star-btn,
-.human-turn .star-btn,
-[data-testid="conversation-turn-user"] .star-btn {
+/* The star pill button */
+[data-testid="user-message"] .star-btn {
+  /* Layout */
+  position: absolute !important;
+  bottom: -10px !important;
+  right: 12px !important;
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
   gap: 5px !important;
-  padding: 4px 10px !important;
+
+  /* Pill shape */
+  padding: 3px 10px !important;
   border-radius: 8px !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.3) !important;
-  background: transparent !important;
-  font-size: 13px !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.25) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+
+  /* Text */
+  font-size: 12px !important;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+  white-space: nowrap !important;
   cursor: pointer !important;
-  color: rgba(0, 0, 0, 0.5) !important;
-  margin-left: 0 !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: unset !important;
-  border-radius: 8px !important;
-  transition: all 0.2s ease !important;
+
+  /* Always visible */
+  opacity: 1 !important;
+  z-index: 10 !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease !important;
 }
 
-div[data-testid="user-message"] .star-btn:hover,
-.human-message .star-btn:hover,
-.human-turn .star-btn:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+[data-testid="user-message"] .star-btn:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.4) !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+  transform: scale(1.04) !important;
 }
 
-div[data-testid="user-message"] .star-btn.starred,
-.human-message .star-btn.starred,
-.human-turn .star-btn.starred {
+[data-testid="user-message"] .star-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* Starred / saved state — amber palette */
+[data-testid="user-message"] .star-btn.starred {
   background: #FAEEDA !important;
   border-color: #FAC775 !important;
   color: #633806 !important;
 }
 
-div[data-testid="user-message"] .star-btn.starred:hover,
-.human-message .star-btn.starred:hover,
-.human-turn .star-btn.starred:hover {
+[data-testid="user-message"] .star-btn.starred:hover {
   background: #F5E5C9 !important;
+  border-color: #EF9F27 !important;
 }
 
-div[data-testid="user-message"] .star-btn.starred svg path,
-.human-message .star-btn.starred svg path,
-.human-turn .star-btn.starred svg path {
+[data-testid="user-message"] .star-btn.starred .star-icon path {
   fill: #EF9F27 !important;
   stroke: #BA7517 !important;
 }
 
-/* Dark mode for Claude message star pill */
+/* ── Dark mode ────────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
-  div[data-testid="user-message"] .star-btn,
-  .human-message .star-btn,
-  .human-turn .star-btn {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+  [data-testid="user-message"] .star-btn {
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
   }
-  div[data-testid="user-message"] .star-btn:hover,
-  .human-message .star-btn:hover,
-  .human-turn .star-btn:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.85) !important;
+  [data-testid="user-message"] .star-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
   }
-  div[data-testid="user-message"] .star-btn.starred,
-  .human-message .star-btn.starred,
-  .human-turn .star-btn.starred {
+  [data-testid="user-message"] .star-btn.starred {
     background: #3c2f17 !important;
     border-color: #785a25 !important;
     color: #fbe6c4 !important;
   }
-  div[data-testid="user-message"] .star-btn.starred:hover,
-  .human-message .star-btn.starred:hover,
-  .human-turn .star-btn.starred:hover {
-    background: #47371b !important;
+  [data-testid="user-message"] .star-btn.starred:hover {
+    background: #4a3a1e !important;
   }
 }
-

@@ -422,21 +422,16 @@
     const platform = detectPlatform();
     
     if (platform === 'claude') {
-      // Purge generic stars and body-owned overlay stars
-      document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
-      document.querySelectorAll('.ai-saver-star').forEach(el => el.remove());
+      // Purge any leftover legacy stars
+      document.querySelectorAll('.ai-saver-msg-star, .ai-saver-star').forEach(el => el.remove());
 
-      // Target strictly [data-testid="user-message"] — the most stable Claude selector
       const userMessages = document.querySelectorAll('[data-testid="user-message"]');
 
       for (let index = 0; index < userMessages.length; index++) {
         const msgBubble = userMessages[index];
 
-        // The star goes into a SIBLING actions row, not inside the bubble.
-        // Check the parent container for any existing star (covers all siblings).
-        const parent = msgBubble.parentElement;
-        if (!parent) continue;
-        if (parent.querySelector('[data-star-btn]')) continue;
+        // Skip if already injected
+        if (msgBubble.querySelector('[data-star-btn]')) continue;
 
         const msgUrl = window.location.href + '#msg-' + index;
 
@@ -447,47 +442,20 @@
           msgBubble.querySelector('p') ||
           msgBubble;
 
-        // ── Find the actions row ─────────────────────────────────────────────
-        // Strategy 1: sibling of the bubble that contains buttons (Copy/Edit)
-        let actionsRow = null;
-        let sibling = msgBubble.nextElementSibling;
-        while (sibling) {
-          if (sibling.querySelector('button')) {
-            actionsRow = sibling;
-            break;
-          }
-          sibling = sibling.nextElementSibling;
-        }
-
-        // Strategy 2: parent's child div that directly contains buttons
-        if (!actionsRow) {
-          for (const child of parent.children) {
-            if (child !== msgBubble && child.querySelector('button')) {
-              actionsRow = child;
-              break;
-            }
-          }
-        }
-
-        // Strategy 3: look for a button with aria-label "copy" anywhere in parent
-        if (!actionsRow) {
-          const copyBtn = parent.querySelector(
-            'button[aria-label*="opy"], button[aria-label*="dit"], button[title*="opy"], button[title*="dit"]'
-          );
-          if (copyBtn) actionsRow = copyBtn.parentElement;
-        }
-
-        // ── Build star pill button ──────────────────────────────────────────
+        // Check stored state
         const saved = await isConversationSaved(msgUrl);
 
+        // Build accessible star button
         const starBtn = document.createElement('button');
-        starBtn.className = saved ? 'star-btn starred' : 'star-btn';
-        starBtn.setAttribute('data-star-btn', 'true');
-        starBtn.title = 'Save this message';
+        starBtn.className       = saved ? 'star-btn starred' : 'star-btn';
+        starBtn.setAttribute('data-star-btn',  'true');
+        starBtn.setAttribute('aria-label',     'Star message');
+        starBtn.setAttribute('aria-pressed',   saved ? 'true' : 'false');
+        starBtn.setAttribute('type',           'button');
         starBtn.innerHTML = `
           <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24"
                fill="${saved ? 'currentColor' : 'none'}"
-               stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+               stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
           <span>${saved ? 'Starred' : 'Star'}</span>
@@ -496,13 +464,14 @@
         starBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
           e.preventDefault();
-          const isCurrentlyStarred = starBtn.classList.contains('starred');
-          if (isCurrentlyStarred) {
+          const isStarred = starBtn.classList.contains('starred');
+          if (isStarred) {
             const result = await chrome.storage.local.get(['savedChats']);
             let savedChats = result.savedChats || [];
             savedChats = savedChats.filter(c => c.url !== msgUrl);
             await chrome.storage.local.set({ savedChats });
             starBtn.classList.remove('starred');
+            starBtn.setAttribute('aria-pressed', 'false');
             starBtn.querySelector('svg').setAttribute('fill', 'none');
             starBtn.querySelector('span').textContent = 'Star';
             updateStarButtons();
@@ -516,18 +485,15 @@
             };
             await saveConversation(messageData);
             starBtn.classList.add('starred');
+            starBtn.setAttribute('aria-pressed', 'true');
             starBtn.querySelector('svg').setAttribute('fill', 'currentColor');
             starBtn.querySelector('span').textContent = 'Starred';
           }
         });
 
-        // ── Inject ──────────────────────────────────────────────────────────
-        if (actionsRow) {
-          actionsRow.appendChild(starBtn);
-        } else {
-          // Last resort: append directly after the bubble in the parent
-          msgBubble.insertAdjacentElement('afterend', starBtn);
-        }
+        // Inject as a direct child of the bubble (sibling to text content).
+        // CSS will absolutely position it in the bottom-right corner.
+        msgBubble.appendChild(starBtn);
       }
     } else {
       const config = getPlatformConfig();

@@ -2,6 +2,16 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.16] - 2026-06-09
+
+### Changed
+- Rewrote Claude star injection to use the **accessible persistent overlay** approach:
+  - Injected as a **direct child** of `[data-testid="user-message"]` (sibling to text div).
+  - Positioned **absolutely** in the bottom-right corner via CSS — always visible, no hover dependency.
+  - Added `aria-label="Star message"`, `aria-pressed="true/false"`, `type="button"`, `aria-hidden="true"` on SVG.
+  - Removed all legacy flex-column overrides and action-row hunting logic.
+  - CSS fully cleaned up — single clean block scoped to `[data-testid="user-message"] .star-btn`.
+
 ## [1.3.15] - 2026-06-09
 
 ### Fixed
