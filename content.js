@@ -470,9 +470,16 @@
     });
   }
 
+  let domObserver = null;
+  let urlObserver = null;
+
   // Initialize
   async function init() {
     await loadCustomPlatforms();
+    
+    if (domObserver) {
+      domObserver.disconnect();
+    }
     
     if (!isChatInterface()) {
       // Clean up if we navigated away (in SPA)
@@ -481,23 +488,32 @@
       return;
     }
 
-    setTimeout(() => {
-      injectStarButtons();
-      injectMessageStars();
-    }, 2000);
+    injectStarButtons();
+    injectMessageStars();
     
     // Observe DOM changes for dynamic loading
-    const observer = new MutationObserver(() => {
-      if (!isChatInterface()) {
-        document.querySelectorAll('.ai-saver-container').forEach(el => el.remove());
-        document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
-        return;
+    domObserver = new MutationObserver(() => {
+      if (domObserver) domObserver.disconnect();
+      
+      try {
+        if (!isChatInterface()) {
+          document.querySelectorAll('.ai-saver-container').forEach(el => el.remove());
+          document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
+          return;
+        }
+        injectStarButtons();
+        injectMessageStars();
+      } finally {
+        if (domObserver) {
+          domObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        }
       }
-      injectStarButtons();
-      injectMessageStars();
     });
     
-    observer.observe(document.body, {
+    domObserver.observe(document.body, {
       childList: true,
       subtree: true
     });
@@ -510,13 +526,16 @@
   }
 
   // Re-init on URL changes (SPA navigation)
-  let lastUrl = location.href;
-  new MutationObserver(() => {
-    const url = location.href;
-    if (url !== lastUrl) {
-      lastUrl = url;
-      setTimeout(init, 1000);
-    }
-  }).observe(document, { subtree: true, childList: true });
+  if (!urlObserver) {
+    let lastUrl = location.href;
+    urlObserver = new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        setTimeout(init, 1000);
+      }
+    });
+    urlObserver.observe(document, { subtree: true, childList: true });
+  }
 
 })();

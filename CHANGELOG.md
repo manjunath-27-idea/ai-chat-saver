@@ -2,6 +2,14 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.5] - 2026-06-08
+
+### Fixed
+- Fixed an infinite recursive mutation loop bug inside `content.js`. Injecting and removing star button elements triggered the `MutationObserver` callback recursively, leading to 100% CPU utilization and periodic tab reloads/crashes. Added disconnect/reconnect logic inside observers to safely ignore script-driven DOM modifications.
+- Resolved a duplicate observer memory leak bug by using global variables to track and clean up existing observers on SPA URL navigation changes.
+
+---
+
 ## [1.3.4] - 2026-06-08
 
 ### Fixed
