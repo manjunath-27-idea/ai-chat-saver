@@ -10,8 +10,8 @@
       title: 'title'
     },
     claude: {
-      messages: '.font-claude-message, .message',
-      messageText: '.prose, .message-content',
+      messages: '.font-claude-message, .message, [data-testid="user-message"], [data-testid="assistant-message"]',
+      messageText: '.prose, .message-content, [class*="message-content"]',
       userMessage: '.human-message, [data-testid="user-message"]',
       assistantMessage: '.assistant-message, [data-testid="assistant-message"]',
       title: 'title'
@@ -242,7 +242,8 @@
       if (isMatchingHost) {
         const isMatchingPath = config.paths.some(p => {
           if (p === '/') return path === '/';
-          return path === p || path.startsWith(p + '/');
+          const cleanP = p.endsWith('/') && p.length > 1 ? p.slice(0, -1) : p;
+          return path === p || path === cleanP || path.startsWith(cleanP + '/');
         });
         if (isMatchingPath) {
           return platform;
@@ -367,7 +368,7 @@
         return headers.length > 0 ? headers : [document.querySelector('main')];
       },
       claude: () => {
-        return document.querySelectorAll('.sticky-header, header');
+        return document.querySelectorAll('.sticky-header, header, [class*="header"], [class*="chat-header"]');
       },
       gemini: () => {
         return document.querySelectorAll('.conversation-title, header');

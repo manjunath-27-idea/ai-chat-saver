@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.4] - 2026-06-08
+
+### Fixed
+- Fixed a path comparison bug in `detectPlatform` inside `content.js` where trailing slashes in platform path configurations (like Claude's `/chat/`) caused double-slash mismatches, preventing the extension script from matching and loading on those pages.
+- Expanded Claude selector compatibility to include `[data-testid="user-message"]` and `[data-testid="assistant-message"]` under main message selectors.
+- Expanded Claude sticky header query targets to look for dynamic header containers.
+
+---
+
 ## [1.3.3] - 2026-06-08
 
 ### Added
