@@ -434,7 +434,7 @@ body {
 /* Two-Column Dashboard Layout */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 1fr 360px;
   gap: 24px;
   flex: 1;
   min-height: 0;
@@ -446,8 +446,9 @@ body {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  border-right: 1px solid var(--border);
-  padding-right: 24px;
+  border-left: 1px solid var(--border);
+  padding-left: 24px;
+  grid-column: 2;
 }
 
 .chats-sidebar .toolbar {
@@ -514,6 +515,8 @@ body {
   box-shadow: var(--shadow);
   overflow: hidden;
   position: relative;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .viewer-placeholder {
@@ -621,13 +624,18 @@ body {
   }
   
   .chats-sidebar {
+    grid-column: auto;
+    border-left: none;
     border-right: none;
+    padding-left: 0;
     padding-right: 0;
     height: 400px;
     margin-bottom: 24px;
   }
   
   .chat-viewer {
+    grid-column: auto;
+    grid-row: auto;
     height: 550px;
   }
 }

@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.2] - 2026-06-08
+
+### Changed
+- Swapped columns in the split-screen layout: the static chat viewer (`#chatViewer`) is now located on the left side, and the chats sidebar navigation (`.chats-sidebar` containing search, filter select, and chat card list) is located on the right side.
+- Relocated the platform filter dropdown select back into the sidebar toolbar for cohesive local navigation.
+- Maintained responsive behavior where the sidebar stacks on top of the chat viewer on small mobile screens.
+
+---
+
 ## [1.3.1] - 2026-06-08
 
 ### Added
