@@ -2,6 +2,14 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.14] - 2026-06-09
+
+### Fixed
+- Repositioned Claude message star button back into the native actions row alongside the Copy button, as a pill-shaped "☆ Star" / "★ Starred" button matching Claude's native button style.
+- Replaced broken flex-column bubble overrides with targeted inline row styling on the actions div.
+- Removed icon-only size overrides; button now uses correct pill dimensions (padding, font-size, border-radius) matching the reference design.
+- Star SVG fill now correctly toggles between `none` (unstarred) and `currentColor` (starred amber) on click.
+
 ## [1.3.13] - 2026-06-08
 
 ### Fixed

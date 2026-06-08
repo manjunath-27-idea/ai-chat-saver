@@ -234,22 +234,18 @@
   }
 }
 
-/* Claude User Message Bubble Turn flex alignment layout */
-div[data-testid="user-message"],
-.human-message,
-.human-turn,
-[data-testid="conversation-turn-user"] {
+/* Claude: ensure the actions row that holds our star button lays out inline */
+div[data-testid="user-message"] > div:has(> .star-btn),
+.human-message > div:has(> .star-btn),
+.human-turn > div:has(> .star-btn) {
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
 }
 
-/* Force flex-direction column on the immediate container of the star button to stack it below text */
-*:has(> .star-btn) {
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-/* Claude Message-level Star Button (Icon-Only Style) */
+/* Claude Message-level Star Button — pill style matching native Copy button */
 div[data-testid="user-message"] .star-btn,
 .human-message .star-btn,
 .human-turn .star-btn,
@@ -257,15 +253,77 @@ div[data-testid="user-message"] .star-btn,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  align-self: flex-end !important;
-  margin-left: auto !important;
-  margin-right: 4px !important;
-  margin-top: 8px !important;
-  margin-bottom: 4px !important;
-  padding: 6px !important;
-  border-radius: 50% !important;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  box-sizing: border-box !important;
+  gap: 5px !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.3) !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: unset !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
 }
+
+div[data-testid="user-message"] .star-btn:hover,
+.human-message .star-btn:hover,
+.human-turn .star-btn:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+div[data-testid="user-message"] .star-btn.starred,
+.human-message .star-btn.starred,
+.human-turn .star-btn.starred {
+  background: #FAEEDA !important;
+  border-color: #FAC775 !important;
+  color: #633806 !important;
+}
+
+div[data-testid="user-message"] .star-btn.starred:hover,
+.human-message .star-btn.starred:hover,
+.human-turn .star-btn.starred:hover {
+  background: #F5E5C9 !important;
+}
+
+div[data-testid="user-message"] .star-btn.starred svg path,
+.human-message .star-btn.starred svg path,
+.human-turn .star-btn.starred svg path {
+  fill: #EF9F27 !important;
+  stroke: #BA7517 !important;
+}
+
+/* Dark mode for Claude message star pill */
+@media (prefers-color-scheme: dark) {
+  div[data-testid="user-message"] .star-btn,
+  .human-message .star-btn,
+  .human-turn .star-btn {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+  div[data-testid="user-message"] .star-btn:hover,
+  .human-message .star-btn:hover,
+  .human-turn .star-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+  div[data-testid="user-message"] .star-btn.starred,
+  .human-message .star-btn.starred,
+  .human-turn .star-btn.starred {
+    background: #3c2f17 !important;
+    border-color: #785a25 !important;
+    color: #fbe6c4 !important;
+  }
+  div[data-testid="user-message"] .star-btn.starred:hover,
+  .human-message .star-btn.starred:hover,
+  .human-turn .star-btn.starred:hover {
+    background: #47371b !important;
+  }
+}
+

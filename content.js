@@ -422,7 +422,7 @@
     const platform = detectPlatform();
     
     if (platform === 'claude') {
-      // Purge generic stars and body-owned overlay stars that shouldn't be on Claude anymore
+      // Purge generic stars and body-owned overlay stars
       document.querySelectorAll('.ai-saver-msg-star').forEach(el => el.remove());
       document.querySelectorAll('.ai-saver-star').forEach(el => el.remove());
 
@@ -430,64 +430,76 @@
       
       for (let index = 0; index < userMessages.length; index++) {
         const msg = userMessages[index];
+        
+        // Skip if already has a star button anywhere inside this message
+        if (msg.querySelector('[data-star-btn]')) continue;
+        
         const msgUrl = window.location.href + '#msg-' + index;
         
-        // Find text block inside the user message bubble
-        const textBlock = msg.querySelector('.font-user-message, .prose, [class*="message-content"], [class*="font-user-message"]') || msg.firstElementChild;
+        // Find the text block for saving content
+        const textBlock = msg.querySelector('.font-user-message, .prose, [class*="font-user-message"], [class*="message-content"]') || msg.firstElementChild;
         if (!textBlock) continue;
-        
-        let starBtn = msg.querySelector('[data-star-btn]');
-        if (!starBtn) {
-          starBtn = document.createElement('button');
-          starBtn.className = 'star-btn';
-          starBtn.setAttribute('data-star-btn', 'true');
-          starBtn.innerHTML = `
-            <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          `;
+
+        // Check saved state
+        const saved = await isConversationSaved(msgUrl);
+
+        // Build the pill button matching Claude's native Copy button style
+        const starBtn = document.createElement('button');
+        starBtn.className = saved ? 'star-btn starred' : 'star-btn';
+        starBtn.setAttribute('data-star-btn', 'true');
+        starBtn.setAttribute('data-listener-attached', 'true');
+        starBtn.title = 'Save this message';
+        starBtn.innerHTML = `
+          <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="${saved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>${saved ? 'Starred' : 'Star'}</span>
+        `;
+
+        starBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          e.preventDefault();
           
-          // Position synchronously after the text block
-          textBlock.after(starBtn);
-        }
-        
-        // Asynchronously check saved state and update only the class
-        isConversationSaved(msgUrl).then(saved => {
-          starBtn.className = saved ? 'star-btn starred' : 'star-btn';
-        });
-        
-        if (!starBtn.dataset.listenerAttached) {
-          starBtn.dataset.listenerAttached = 'true';
-          starBtn.title = 'Save this message';
-          starBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            e.preventDefault();
+          const isCurrentlyStarred = starBtn.classList.contains('starred');
+          if (isCurrentlyStarred) {
+            const result = await chrome.storage.local.get(['savedChats']);
+            let savedChats = result.savedChats || [];
+            savedChats = savedChats.filter(c => c.url !== msgUrl);
+            await chrome.storage.local.set({ savedChats });
             
-            const isCurrentlyStarred = starBtn.classList.contains('starred');
-            if (isCurrentlyStarred) {
-              const result = await chrome.storage.local.get(['savedChats']);
-              let savedChats = result.savedChats || [];
-              savedChats = savedChats.filter(c => c.url !== msgUrl);
-              await chrome.storage.local.set({ savedChats });
-              
-              starBtn.classList.remove('starred');
-              updateStarButtons();
-            } else {
-              const messageData = {
-                url: msgUrl,
-                title: document.title + ' - Message #' + (index + 1),
-                platform: 'claude',
-                messages: [{
-                  role: 'user',
-                  text: textBlock.innerText.trim(),
-                  timestamp: Date.now()
-                }],
-                isSingleMessage: true
-              };
-              await saveConversation(messageData);
-              starBtn.classList.add('starred');
-            }
-          });
+            starBtn.classList.remove('starred');
+            starBtn.querySelector('svg').setAttribute('fill', 'none');
+            starBtn.querySelector('span').textContent = 'Star';
+            updateStarButtons();
+          } else {
+            const messageData = {
+              url: msgUrl,
+              title: document.title + ' - Message #' + (index + 1),
+              platform: 'claude',
+              messages: [{
+                role: 'user',
+                text: textBlock.innerText.trim(),
+                timestamp: Date.now()
+              }],
+              isSingleMessage: true
+            };
+            await saveConversation(messageData);
+            starBtn.classList.add('starred');
+            starBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+            starBtn.querySelector('span').textContent = 'Starred';
+          }
+        });
+
+        // Find the native actions row (where Copy button lives) and inject there.
+        // Claude renders action buttons inside a flex row below the message text.
+        // We look for the first <button> in the message and use its parent as the actions row.
+        const firstNativeBtn = msg.querySelector('button');
+        const actionsRow = firstNativeBtn ? firstNativeBtn.closest('div') : null;
+        if (actionsRow && actionsRow !== msg) {
+          actionsRow.appendChild(starBtn);
+        } else {
+          // Fallback: inject after the text block
+          textBlock.after(starBtn);
         }
       }
     } else {
