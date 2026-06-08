@@ -18,19 +18,24 @@
 }
 
 .ai-saver-star-btn:hover {
-  background: rgba(255, 193, 7, 0.15);
+  background: rgba(255, 193, 7, 0.1);
   transform: scale(1.1);
 }
 
 .ai-saver-star-icon {
   width: 20px;
   height: 20px;
-  color: #ffc107;
+  color: rgba(128, 128, 128, 0.65); /* Subtle gray by default */
   transition: all 0.2s;
 }
 
+.ai-saver-star-btn:hover .ai-saver-star-icon {
+  color: #ffc107; /* Gold on hover */
+}
+
 .ai-saver-star-btn.saved .ai-saver-star-icon {
-  fill: #ffc107;
+  color: #ffc107;
+  fill: #ffc107; /* Filled gold when saved */
   filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.5));
 }
 
@@ -38,10 +43,10 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08); /* Transparent glassmorphism by default */
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 193, 7, 0.5);
+  border: 1px solid rgba(128, 128, 128, 0.25);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -49,28 +54,28 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
-  color: #ffc107;
+  font-size: 15px;
+  color: rgba(120, 120, 120, 0.85); /* Subtle gray color by default */
   opacity: 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   padding: 0;
 }
 
 .ai-saver-msg-star:hover {
-  background: #ffc107;
-  color: #ffffff;
-  border-color: #ffc107;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.35);
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107; /* Turns gold on hover */
+  border-color: rgba(255, 193, 7, 0.5);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
 }
 
 .ai-saver-msg-star.saved {
   opacity: 1 !important;
-  color: #ffffff;
-  background: #ffc107;
-  border-color: #ffc107;
+  color: #ffffff !important;
+  background: #ffc107 !important;
+  border-color: #ffc107 !important;
   box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
 }
 
@@ -80,46 +85,66 @@
   opacity: 1;
 }
 
-/* Prevent text from overlapping the star button by reserving right space */
-*:has(> .ai-saver-msg-star) {
+/* Prevent text from overlapping the star button by reserving right space (for assistant/generic right-positioned stars) */
+*:has(> .ai-saver-msg-star):not([data-testid="user-message"]):not(.user-query-container):not([class*="MessageItem_user"]) {
   padding-right: 44px !important;
 }
 
-/* Platform-specific adjustments */
+/* Platform-specific adjustments & overflow fixes */
 [data-testid="conversation-turn-"],
 .user-query-container,
 .model-response-container,
 [class*="MessageItem_user"],
-[class*="MessageItem_assistant"] {
+[class*="MessageItem_assistant"],
+[data-testid="user-message"],
+[data-testid="assistant-message"] {
   position: relative !important;
+  overflow: visible !important;
+}
+
+/* Position user message star outside the bubble on the left */
+[data-testid="user-message"] > .ai-saver-msg-star,
+.user-query-container > .ai-saver-msg-star,
+[class*="MessageItem_user"] > .ai-saver-msg-star {
+  left: -40px;
+  right: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Adjust scale transition on hover for left-positioned user star */
+[data-testid="user-message"] > .ai-saver-msg-star:hover,
+.user-query-container > .ai-saver-msg-star:hover,
+[class*="MessageItem_user"] > .ai-saver-msg-star:hover {
+  transform: translateY(-50%) scale(1.15);
 }
 
 /* Dark mode overrides (Selector-based & Media Query) */
 .dark .ai-saver-msg-star,
 .dark-theme .ai-saver-msg-star,
 [data-theme="dark"] .ai-saver-msg-star {
-  background: rgba(30, 30, 30, 0.75);
-  border-color: rgba(255, 193, 7, 0.4);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  background: rgba(30, 30, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(200, 200, 200, 0.65);
 }
 
 .dark .ai-saver-msg-star:hover,
 .dark-theme .ai-saver-msg-star:hover,
 [data-theme="dark"] .ai-saver-msg-star:hover {
-  background: #ffc107;
-  color: #1a1a1a;
-  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
   .ai-saver-msg-star {
-    background: rgba(30, 30, 30, 0.75);
-    border-color: rgba(255, 193, 7, 0.4);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    background: rgba(30, 30, 30, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(200, 200, 200, 0.65);
   }
   .ai-saver-msg-star:hover {
-    background: #ffc107;
-    color: #1a1a1a;
-    border-color: #ffc107;
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    border-color: rgba(255, 193, 7, 0.5);
   }
 }

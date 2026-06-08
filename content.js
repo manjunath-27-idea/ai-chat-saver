@@ -368,7 +368,10 @@
         return headers.length > 0 ? headers : [document.querySelector('main')];
       },
       claude: () => {
-        return document.querySelectorAll('.sticky-header, header, [class*="header"], [class*="chat-header"]');
+        const headers = document.querySelectorAll('.sticky-header, header, [class*="header"], [class*="chat-header"]');
+        return Array.from(headers).filter(el => 
+          !el.closest('nav, [role="navigation"], .sidebar, [class*="sidebar"], [class*="profile"], [class*="Menu"]')
+        );
       },
       gemini: () => {
         return document.querySelectorAll('.conversation-title, header');

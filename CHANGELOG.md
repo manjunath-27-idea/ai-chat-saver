@@ -2,6 +2,15 @@
 
 All notable changes to the **AI Chat Saver** Chrome Extension will be documented in this file.
 
+## [1.3.6] - 2026-06-08
+
+### Fixed
+- Fixed duplicate header star button injection on Claude by excluding sidebar, navigation, and profile menu containers from injection targets.
+- Positioned user prompt message star buttons outside the message bubble box on the left, vertically centered beside the bubble, preventing overlapping text or layout distortion.
+- Styled star icons to look completely native by default (subtle gray glassmorphism outline) and only turn bright gold when hovered or saved.
+
+---
+
 ## [1.3.5] - 2026-06-08
 
 ### Fixed
